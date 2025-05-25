@@ -1,0 +1,57 @@
+<div class="m-1 d-flex justify-content-between">
+  <div class="hstack gap-3">
+    <div>
+      <input type="text" placeholder="Piece Id" class="form-control" [formControl]="piecePartFilter">
+    </div>
+    <div>
+      <select class="form-select" [formControl]="piecePartStatus">
+        <option [ngValue]="'All'" selected>All</option>
+        <option [ngValue]="'Owned'">Owned</option>
+        <option [ngValue]="'Missing'">Missing Pieces</option>
+      </select>
+    </div>
+  </div>
+  <div>
+    Missing: {{missingCount$ | async}}
+  </div>
+</div>
+<div *ngIf="filteredPieces$ | async as set">
+  <div
+    *ngFor="let part of set; index as i; trackBy: trackBy"
+    class="card m-1"
+    [ngClass]="{ 'text-bg-success': part.owned, 'text-bg-danger': part.numberMissing === part.quantity }"
+  >
+    <div class="card-body">
+      <div class="hstack gap-3">
+        <input type="checkbox" class="form-check-input" [formControl]="ownedArr.controls[part.index]">
+        <img [src]="part.imageUrl" height="100" (click)="toggleMissing(part, i)"/>
+        <div class="vstack gap-2">
+          <div class="fs-5">
+            <span>{{part.name}}</span>
+          </div>
+          <div class="small hstack gap-4">
+            <span>Quantity: {{part.quantity}}</span>
+            <span>Piece #: {{part.elementId}}</span>
+          </div>
+          <input
+            *ngIf="!part.owned"
+            type="text"
+            class="form-control"
+            placeholder="# Missing"
+            (click)="$event.stopPropagation()"
+            [formControl]="pieceArr.controls[part.index]"
+          />
+        </div>
+      </div>
+      <div>
+        <button
+          class="btn btn-danger w-100 mt-3"
+          *ngIf="!part.owned && part.numberMissing !== part.quantity"
+          (click)="missingAll(part, i); $event.stopPropagation()"
+        >
+          Missing All Pieces
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
